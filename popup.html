@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>초콕칩 매크로</title>
+    <style>
+      body {
+        width: 300px;
+        padding: 10px;
+        font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+        margin: 0;
+        background-color: #fafafa;
+        color: rgba(0, 0, 0, 0.87);
+        overflow: hidden; /* 스크롤 제거 */
+        max-height: fit-content; /* 내용에 맞게 높이 조정 */
+      }
+
+      html {
+        overflow: hidden;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        height: auto;
+        max-height: none;
+        overflow: visible;
+      }
+
+      label {
+        font-weight: 500;
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.875rem;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      button {
+        margin-top: 16px;
+        padding: 8px 16px;
+        background-color: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.02857em;
+        box-shadow:
+          0px 3px 1px -2px rgba(0, 0, 0, 0.2),
+          0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+          0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+        transition:
+          background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,
+          box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+        line-height: 1.75;
+        min-width: 64px;
+      }
+
+      button:hover {
+        background-color: #1565c0;
+        box-shadow:
+          0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+          0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+          0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+      }
+
+      button:active {
+        box-shadow:
+          0px 5px 5px -3px rgba(0, 0, 0, 0.2),
+          0px 8px 10px 1px rgba(0, 0, 0, 0.14),
+          0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+      }
+
+      button:disabled {
+        background-color: rgba(0, 0, 0, 0.12);
+        color: rgba(0, 0, 0, 0.26);
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      button:disabled:hover {
+        background-color: rgba(0, 0, 0, 0.12);
+        box-shadow: none;
+      }
+
+      input,
+      select {
+        padding: 8px 12px;
+        width: 100%;
+        border: 1px solid rgba(0, 0, 0, 0.23);
+        border-radius: 4px;
+        font-size: 1rem;
+        line-height: 1.5;
+        background-color: #fff;
+        box-sizing: border-box;
+        transition: border-color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #1976d2;
+        border-width: 2px;
+        padding: 7px 11px; /* 1px 줄여서 테두리가 두꺼워져도 크기 유지 */
+      }
+
+      .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 5px;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+      }
+
+      .checkbox-item input[type='checkbox'] {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        accent-color: #1976d2;
+        border-radius: 2px;
+        cursor: pointer;
+      }
+
+      /* 체크박스 라벨에도 포인터 커서 추가 */
+      .checkbox-item label {
+        cursor: pointer;
+      }
+
+      /* MUI 스타일 select 화살표 */
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='rgba(0, 0, 0, 0.54)' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        padding-right: 32px;
+      }
+
+      /* Material Design 스타일 Ripple Effect (간단 버전) */
+      button:after {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+        background-repeat: no-repeat;
+        background-position: 50%;
+        transform: scale(10, 10);
+        opacity: 0;
+        transition:
+          transform 0.5s,
+          opacity 1s;
+      }
+
+      button:active:after {
+        transform: scale(0, 0);
+        opacity: 0.3;
+        transition: 0s;
+      }
+
+      /* Material 디자인 스타일의 라벨과 인풋 박스 */
+      .form-field {
+        position: relative;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <label for="month">월:</label>
+        <select id="month"></select>
+      </div>
+      <div>
+        <label for="day">일:</label>
+        <select id="day"></select>
+      </div>
+      <div>
+        <label for="time">시간:</label>
+        <select id="time"></select>
+      </div>
+      <div>
+        <label>1순위 코트 선택:</label>
+        <div class="checkbox-group" id="priorityCourtNumbers">
+          <!-- 체크박스는 JavaScript로 동적 생성됩니다 -->
+        </div>
+      </div>
+      <div>
+        <label>2순위 코트 선택:</label>
+        <div class="checkbox-group" id="secondPriorityCourtNumbers">
+          <!-- 체크박스는 JavaScript로 동적 생성됩니다 -->
+        </div>
+      </div>
+
+      <div>
+        <button id="actionBtn">시작</button>
+      </div>
+
+      <div>
+        <p id="status">대기 중...</p>
+      </div>
+    </div>
+
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>
