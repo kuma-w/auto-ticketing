@@ -14,12 +14,18 @@ let config = {
 // 메시지 리스너 설정
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === 'start') {
+    console.log('start message received', message);
     config = message.config;
     setTimeout(() => {
+      console.log('startMacro');
       startMacro();
     }, 30);
+    sendResponse({ success: true });
   } else if (message.action === 'stop') {
     stopMacro();
+    sendResponse({ success: true });
+  } else {
+    sendResponse({ success: false, message: 'Invalid action' });
   }
   return true;
 });
@@ -89,6 +95,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 const confirmReservationDate = () => {
+  console.log('confirmReservationDate');
   // class가 'day'인 모든 span 요소를 선택
   const daySpans = document.querySelectorAll('span.day');
 
@@ -134,6 +141,8 @@ const confirmReservationDate = () => {
             console.log(`requestStopMacro`);
             onStopMacroFailure('선택한 시간의 코트가 만석입니다.');
           }
+        } else {
+          console.log('선택한 날짜를 찾을 수 없습니다');
         }
       } else {
         console.log('ul 요소를 찾을 수 없습니다');
@@ -163,7 +172,6 @@ const confirmCourtReservation = () => {
     availableCourts.includes(item)
   );
 
-
   if (isFirstWantedCourtsSelectable) {
     onStopMacroSuccess(`코트 선택 완료 : ${firstWantedCourts.join(', ')}`);
 
@@ -179,9 +187,8 @@ const confirmCourtReservation = () => {
     if (result === false) {
       onStopMacroFailure('조건에 만족하는 코트가 없습니다.');
     } else {
-
       allCheckboxInputs.forEach((input, index) => {
-        if (result.includes(index + 1)) { 
+        if (result.includes(index + 1)) {
           console.log(`checkbox :`, index + 1);
           input.checked = true;
         }

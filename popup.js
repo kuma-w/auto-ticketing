@@ -48,12 +48,19 @@ const AvailableDays = [
 
 const AvailableTimes = [
   { value: '09:00', text: '09:00' },
+  { value: '10:30', text: '10:30' },
   { value: '10:40', text: '10:40' },
+  { value: '12:00', text: '12:00' },
   { value: '12:20', text: '12:20' },
+  { value: '13:30', text: '13:30' },
   { value: '13:55', text: '13:55' },
+  { value: '15:00', text: '15:00' },
   { value: '15:30', text: '15:30' },
+  { value: '16:30', text: '16:30' },
   { value: '17:10', text: '17:10' },
+  { value: '18:00', text: '18:00' },
   { value: '18:50', text: '18:50' },
+  { value: '19:30', text: '19:30' },
   { value: '20:30', text: '20:30' },
 ];
 
@@ -79,10 +86,65 @@ let isRunning = false;
 let priorityCourtNumbers = [];
 const MAX_SELECTIONS = 2;
 let secondPriorityCourtNumbers = [];
+let expirationStatus;
+
+const checkExpirationStatus = () => {
+  const EXPIRATION_DATE = '2025-04-30';
+
+  const expirationDate = new Date(EXPIRATION_DATE);
+  expirationDate.setHours(23, 59, 59, 999);
+
+  const now = new Date();
+
+  const timeRemaining = expirationDate - now;
+
+  const isValid = timeRemaining > 0;
+
+  const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+  return {
+    isValid,
+    expirationDate,
+    timeRemaining: {
+      total: timeRemaining,
+      days,
+      hours,
+      minutes,
+      seconds,
+    },
+    formattedRemaining: `${days}일 ${hours}시간 ${minutes}분 ${seconds}초`,
+  };
+};
 
 const handleLoaded = () => {
   console.log('Dom 로딩됨');
   const actionBtn = document.getElementById('actionBtn');
+
+  expirationStatus = checkExpirationStatus();
+
+  if (!expirationStatus.isValid) {
+    actionBtn.disabled = true;
+    const monthInput = document.getElementById('month');
+    const dayInput = document.getElementById('day');
+    const timeInput = document.getElementById('time');
+    monthInput.disabled = true;
+    dayInput.disabled = true;
+    timeInput.disabled = true;
+  }
+
+  setInterval(() => {
+    expirationStatus = checkExpirationStatus();
+    if (expirationStatus.isValid) {
+      const expirationInput = document.getElementById('expiration');
+      expirationInput.textContent = `만료까지 ${expirationStatus.formattedRemaining} 남았습니다.`;
+    } else {
+      const expirationInput = document.getElementById('expiration');
+      expirationInput.textContent = `기간이 만료되었습니다.`;
+    }
+  }, 1000);
 
   // 저장된 설정 불러오기
   chrome.storage.local.get(
@@ -112,10 +174,6 @@ const handleLoaded = () => {
       const month = document.getElementById('month').value;
       const day = document.getElementById('day').value;
       const time = document.getElementById('time').value;
-      // const priorityCourtNumbers = document.getElementById('priorityCourtNumbers').value;
-      // const secondPriorityCourtNumbers = document.getElementById(
-      //   'secondPriorityCourtNumbers'
-      // ).value;
 
       // 설정 저장
       chrome.storage.local.set({
@@ -154,9 +212,6 @@ const handleLoaded = () => {
       // 상태 업데이트
     }
     updateUI();
-
-    // 체크박스 감지 이벤트 추가
-    //
   });
 
   const initializeUI = (data) => {
@@ -283,7 +338,6 @@ const handleLoaded = () => {
       });
     } else {
       // UI 업데이트
-      console.log('test');
       actionBtn.textContent = '시작';
       statusText.textContent = '대기 중...';
       statusText.style.color = 'black';
@@ -295,6 +349,17 @@ const handleLoaded = () => {
       allCheckboxes.forEach((checkbox) => {
         checkbox.disabled = false;
       });
+    }
+
+    expirationStatus = checkExpirationStatus();
+    if (!expirationStatus.isValid) {
+      console.log(`disabled`);
+      monthInput.disabled = true;
+      dayInput.disabled = true;
+      timeInput.disabled = true;
+    }
+    {
+      console.log(`enabled`);
     }
   };
 

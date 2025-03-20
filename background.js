@@ -33,6 +33,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             chrome.tabs.sendMessage(tabId, {
               action: 'start',
               config: {
+                isRunning: config.isRunning,
                 refreshInterval: config.refreshInterval,
                 month: config.month,
                 day: config.day,
